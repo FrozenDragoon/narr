@@ -71,6 +71,17 @@ func main() {
 			if err != nil {
 				log.Println(err)
 			}
+		case SubtitleUrlReceivedEvent:
+			err := q.QueueDownload(DownloadTask{
+				SrcURL:      toDownloadableURL(string(events.payload)),
+				VideoUrl:    browserURL,
+				DownloadDir: args.DownloadDir,
+				IsSubtitle:  true,
+			})
+
+			if err != nil {
+				log.Println(err)
+			}
 		case NavigatedEvent:
 			log.Printf("ᐅ Navigate to %s \n", events.payload)
 			browserURL = string(events.payload)
@@ -111,4 +122,19 @@ func toDownloadPath(videoURL string, downloadDir string, fi probeInfo) string {
 	}
 
 	return downloadDir + "/" + "DL-" + strconv.Itoa(rand.Int()) + audCodec + ".mp4a"
+}
+
+func toSubtitleDownloadPath(videoURL string, downloadDir string) string {
+	u, err := url.Parse(videoURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if strings.HasPrefix(u.Path, "/watch") && u.Query().Has("trackId") {
+		videoId := strings.TrimLeft(u.Path, "/watch/")
+		trackId := u.Query().Get("trackId")
+		return downloadDir + "/" + videoId + "-" + trackId + "-" + strconv.Itoa(rand.Int()) + ".vtt"
+	}
+
+	return downloadDir + "/" + "DL-" + strconv.Itoa(rand.Int()) + ".vtt"
 }

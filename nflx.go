@@ -27,6 +27,7 @@ type event struct {
 
 const MediaUrlReceivedEvent = 0
 const NavigatedEvent = 1
+const SubtitleUrlReceivedEvent = 2
 
 func (n *NFlX) Listen(ctx context.Context) chan event {
 	c := n.chrome // Listen to response received events
@@ -71,6 +72,8 @@ func (n *NFlX) Listen(ctx context.Context) chan event {
 
 					if isMediaURL(ev.Response.URL) {
 						events <- event{MediaUrlReceivedEvent, []byte(ev.Response.URL)}
+					} else if isSubtitleURL(ev.Response.URL) {
+						events <- event{SubtitleUrlReceivedEvent, []byte(ev.Response.URL)}
 					}
 				}
 			}
@@ -84,6 +87,10 @@ func (n *NFlX) Listen(ctx context.Context) chan event {
 // Media resources have the path format /range/0-nnnn...
 func isMediaURL(u string) bool {
 	return strings.Contains(u, "/range/0-")
+}
+
+func isSubtitleURL(u string) bool {
+	return strings.Contains(u, ".vtt") || strings.Contains(u, ".dfxp") || strings.Contains(u, ".ttml")
 }
 
 func (n *NFlX) NavigateTo(ctx context.Context, url string) error {

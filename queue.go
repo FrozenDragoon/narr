@@ -32,6 +32,7 @@ type DownloadTask struct {
 	VideoUrl     string
 	DownloadDir  string
 	FullFilePath string
+	IsSubtitle   bool
 }
 
 // DownloadStatus is implemented by specific status-types (Queuing, Begin, Finished)
@@ -71,6 +72,36 @@ func (q *DownloadQueue) QueueDownload(t DownloadTask) error {
 
 			if resp.StatusCode != http.StatusOK {
 				return fmt.Errorf("bad status  %d for %s", resp.StatusCode, browserURL)
+			}
+
+			if t.IsSubtitle {
+				downloadPath := toSubtitleDownloadPath(browserURL, downloadDir)
+				t.FullFilePath = downloadPath
+
+				q.statusMsgs <- Begin{
+					&taskInfo{taskId, t},
+				}
+
+				out, err := os.Create(t.FullFilePath)
+
+				if err != nil {
+					return err
+				}
+
+				defer out.Close()
+
+				n, err := io.Copy(out, resp.Body)
+				if err != nil {
+					return err
+				}
+
+				q.statusMsgs <- Finished{
+					taskInfo:      &taskInfo{taskId, t},
+					bytesReceived: n,
+					duration:      time.Since(start),
+				}
+
+				return nil
 			}
 
 			header := make([]byte, 3000)
