@@ -104,6 +104,37 @@ func TestDownloadQueue_QueueDownload_Formats(t *testing.T) {
 			assertDirIsEmpty(t, downloadDir)
 		}
 	})
+
+	t.Run("SubtitleDownload", func(t *testing.T) {
+		q := NewDownloadQueue()
+		defer tearDownFunc(q)
+
+		downloadDir := t.TempDir()
+
+		q.OnStatusReceived(func(status DownloadStatus) {
+			_ = status.Task()
+			switch s := status.(type) {
+			case Queuing:
+				break
+			case Begin:
+				break
+			case Finished:
+				fp := s.Task().FullFilePath
+				assert.FileExists(t, fp)
+				assertIdenticalFiles(t, "./test/testdata/subtitle.vtt", fp)
+			}
+		})
+
+		task := DownloadTask{
+			SrcURL:      ts.URL + "/files/subtitle.vtt",
+			DownloadDir: downloadDir,
+			VideoUrl:    "http://example.com/video.mp4",
+			IsSubtitle:  true,
+		}
+
+		err := q.QueueDownload(task)
+		assert.NoError(t, err)
+	})
 }
 
 func TestDownloadQueue_Statuses(t *testing.T) {

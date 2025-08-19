@@ -1,5 +1,5 @@
 # Narr
-Netflix Audio Ripper - Download audio tracks from Netflix to sample your favourite shows. :musical_note:
+Netflix Audio Ripper - Download audio tracks and subtitles from Netflix to sample your favourite shows. :musical_note:
 
 ## Usage
 
@@ -27,7 +27,7 @@ Observe the progress in the terminal:
 ```
 
 You can navigate to any other show or episode or change the language of the audio track while narr is running. It will
-download the audio track of the currently playing episode.
+download the audio track and subtitles of the currently playing episode.
 
 ```bash
 2023/02/18 18:34:25 ▼ Downloading https://www.netflix.com/watch/81237996?trackId=14170056  ⟾  /home/looper/81237996-14170056-4037200794235010051
@@ -43,7 +43,7 @@ It is also possible to navigate to the Netflix home page. Narr will then downloa
 
 Narr uses the [Chrome DevTools Protocol](https://chromedevtools.github.io/devtools-protocol/) to communicate with the
 browser. It intercepts the network requests
-and downloads the audio tracks in mp4 format. This is possible because the audio is not protected by DRM.
+and downloads the audio tracks in mp4 format and subtitles in vtt format. This is possible because the audio and subtitle streams are not protected by DRM.
 
 ## Build from source
 

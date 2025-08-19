@@ -33,3 +33,17 @@ func TestToDownloadableURL(t *testing.T) {
 	downloadableURL := toDownloadableURL(mediaURL)
 	assert.Equal(t, "https://ipv6-cndoca-avcd.nflxvideo.net?t=12345", downloadableURL)
 }
+
+func TestToSubtitleDownloadPath(t *testing.T) {
+	downloadDir := "/tmp/foo"
+
+	videoUrl := "https://www.netflix.com/watch/81405170?trackId=254015180"
+	downloadPath := toSubtitleDownloadPath(videoUrl, downloadDir)
+	assert.True(t, strings.HasPrefix(downloadPath, "/tmp/foo/81405170-254015180-"))
+	assert.True(t, strings.HasSuffix(downloadPath, ".vtt"))
+
+	videoUrl = "https://www.netflix.com"
+	downloadPath = toSubtitleDownloadPath(videoUrl, downloadDir)
+	assert.True(t, strings.HasPrefix(downloadPath, "/tmp/foo/DL-"))
+	assert.True(t, strings.HasSuffix(downloadPath, ".vtt"))
+}
